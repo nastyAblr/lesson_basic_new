@@ -62,12 +62,28 @@ class RecentPlayList(Playlist):
 
         self.songs = deque(maxlen=max_size)  # храним последние песни в ограниченном размере
 
+    # def add_song(self, song):
+    #     if song in self.songs:
+    #         self.songs.remove(song)
+    #         print(f'Песня "{song}" удалена из Недавних')
+    #     else:
+    #         print(f'Песня "{song}" не найдена в Недавних')
+    #     self.songs.append(song)
+    #     print(f'Песня "{song}" добавлена в недавние')
     def add_song(self, song):
+        if song not in self.songs:
+            self.songs.append(song)
+            print(f'Песня "{song}" добавлена в Недавние')
+        else:
+            print(f'Песня "{song}" уже находится в недавних')
+    def remove_song(self, song):
         if song in self.songs:
             self.songs.remove(song)
             print(f'Песня "{song}" удалена из Недавних')
         else:
             print(f'Песня "{song}" не найдена в Недавних')
+
+
 
     def play(self):
         print(f'Воспроизведение последних песен "{self.name}":')
