@@ -7,8 +7,7 @@ from msvcrt import kbhit
 list1 = [22, 16, 1, 45, 78, 12]
 list2 = [15, 17, 18, 19, 22, 16]
 
-elements = list(set(list1) & set(list2))
-print(elements)
+# elements = list(set(list1) & set(list2))    не алгоритм
 
 elements = [x for x in list1 if x in list2]
 print(elements)
