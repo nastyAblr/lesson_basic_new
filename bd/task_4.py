@@ -1,66 +1,67 @@
-
 import sqlite3
 
 
 
+conn = sqlite3.connect('database_my_1.db')
 
-conn = sqlite3.connect('database_2.db')
 conn.execute("PRAGMA foreign_keys = ON")
-cur = conn.cursor()
+cursor = conn.cursor()
 
-
-cur.executescript("""CREATE TABLE Employees (
-    employee_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    first_name TEXT,
-    last_name TEXT,
-    age INTEGER,
-    gender TEXT,
-    UNIQUE (first_name, last_name, age)
-);
-
-CREATE TABLE Customers (
-    customer_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    first_name TEXT,
-    last_name TEXT,
-    address TEXT,
-    phone TEXT,
-    UNIQUE (first_name, last_name, phone)
-);
-
-CREATE TABLE Products (
-    product_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    category TEXT,
-    price REAL,
-    quantity INTEGER,
-    UNIQUE (name, category, price)
-);
-
-CREATE TABLE Orders (
-    order_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    customer_id INTEGER,
-    employee_id INTEGER,
-    date TEXT,
-    status TEXT,
-    FOREIGN KEY (customer_id) REFERENCES Customers(customer_id),
-    FOREIGN KEY (employee_id) REFERENCES Employees(employee_id),
-   
-);
-
-CREATE TABLE OrderItems (
-    order_item_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    order_id INTEGER,
-    product_id INTEGER,
-    quantity INTEGER,
-    price REAL,
-    FOREIGN KEY (order_id) REFERENCES Orders(order_id),
-    FOREIGN KEY (product_id) REFERENCES Products(product_id),
-    UNIQUE (order_id, product_id)
-    
-);
+cursor.execute("""
+CREATE TABLE сотрудники(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+имя TEXT,
+фамилия TEXT,
+возраст INTEGER,
+пол TEXT,
+UNIQUE (имя, фамилия, возраст)
+)
 """)
 
-employees = [
+cursor.execute("""CREATE TABLE клиенты(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+имя TEXT,
+фамилия TEXT,
+адрес TEXT,
+телефон TEXT,
+UNIQUE (имя, фамилия, телефон)
+)
+""")
+
+cursor.execute("""CREATE TABLE продукты(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+название TEXT,
+категория TEXT,
+стоимость DECIMAL(10, 2) NOT NULL,
+количество INTEGER,
+UNIQUE (название, категория, стоимость)
+)
+""")
+
+cursor.execute("""CREATE TABLE заказы(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+клиент_id,
+сотрудник_id,
+дата TEXT,
+статус TEXT,
+FOREIGN KEY (клиент_id) REFERENCES клиенты(id),
+FOREIGN KEY (сотрудник_id) REFERENCES сотрудники(id)
+)
+""")
+
+cursor.execute("""CREATE TABLE позиция_заказов(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+заказ_id INTEGER,
+продукт_id INTEGER,
+количество INTEGER,
+стоимость REAL,
+FOREIGN KEY (заказ_id) REFERENCES заказы(id),
+FOREIGN KEY (продукт_id) REFERENCES продукты(id),
+UNIQUE (заказ_id, продукт_id )
+)
+""")
+
+сотрудники = [
     ('Иван', 'Иванов', 35, 'М'),
     ('Мария', 'Петрова', 28, 'Ж'),
     ('Андрей', 'Сидоров', 45, 'М'),
@@ -73,7 +74,7 @@ employees = [
     ('Ирина', 'Морозова', 41, 'Ж')
 ]
 
-customers = [
+клиенты = [
     ('Алексей', 'Смирнов', 'ул. Ленина, 10', '5551234'),
     ('Анна', 'Кузнецова', 'пр. Мира, 15', '444555678'),
     ('Борис', 'Соловьев', 'ул. Победы, 8', '333222111'),
@@ -86,7 +87,7 @@ customers = [
     ('Ирина', 'Николаева', 'ул. Лесная, 1', '555444333')
 ]
 
-products = [
+продукты = [
     ('Кофе Арабика', 'Напитки', 5.5, 100),
     ('Яблоки', 'Фрукты', 3.0, 200),
     ('Сахар', 'Продукты', 2.0, 150),
@@ -99,7 +100,7 @@ products = [
     ('Творог', 'Молочные продукты', 7.0, 70)
 ]
 
-orders = [
+заказы = [
     (1, 1, '2023-01-15', 'готово'),
     (2, 2, '2023-02-10', 'в процессе'),
     (3, 3, '2023-03-05', 'готово'),
@@ -112,9 +113,9 @@ orders = [
     (10, 10, '2023-07-22', 'готово')
 ]
 
-order_items = [
+позиция_заказов = [
     (1, 1, 2, 5.5),
-    (1, 2,5, 3.0),
+    (1, 2, 5, 3.0),
     (2, 3, 10, 2.0),
     (3, 4, 3, 4.0),
     (4, 5, 7, 2.5),
@@ -125,14 +126,11 @@ order_items = [
     (9, 10, 5, 7.0)
 ]
 
-cur.executemany("INSERT OR IGNORE INTO Employees VALUES (?, ?, ?, ?);", employees)
-cur.executemany("INSERT OR IGNORE INTO Customers VALUES (?, ?, ?, ?);", customers)
-cur.executemany("INSERT OR IGNORE INTO Products VALUES (?, ?, ?, ?);", products)
-cur.executemany("INSERT OR IGNORE INTO Orders VALUES (?, ?, ?, ?);", orders)
-cur.executemany("INSERT OR IGNORE INTO OrderItems VALUES (?, ?, ?, ?);", order_items)
+cursor.executemany("INSERT OR IGNORE INTO сотрудники(имя, фамилия, возраст, пол) Values(?, ?, ?, ?);", сотрудники)
+cursor.executemany("INSERT OR IGNORE INTO клиенты (имя, фамилия, адрес, телефон) Values(?, ?, ?, ?);", клиенты)
+cursor.executemany("INSERT OR IGNORE INTO продукты (название, категория, стоимость, количество) Values(?, ?, ?, ?);", продукты)
+cursor.executemany("INSERT OR IGNORE INTO заказы (клиент_id, сотрудник_id, дата, статус) Values(?, ?, ?, ?);", заказы)
+cursor.executemany("INSERT OR IGNORE INTO позиция_заказов (заказ_id, продукт_id, количество, стоимость) Values(?, ?, ?, ?);", позиция_заказов)
 
 conn.commit()
 conn.close()
-
-
-
